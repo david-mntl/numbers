@@ -18,7 +18,7 @@ global currentNumber
 global currentID
 global audioAverage
 audioAverage = 0
-
+frequencyAverage = 0
 currentNumber = 0
 currentID = 26
 
@@ -96,6 +96,40 @@ def normalizeSignalEnergy():
     print(audioAverageTemp)
     return audioAverageTemp
 
+'''
+* Returns average energy of all recorded
+'''
+def normalizeFrequency():
+
+    # plot of frencuence vs time
+    
+    
+    frequency = 0 # frequency sum of each audio
+    count=0 # count numbers
+    for num in range(0, 16): # numero 
+        for idx in range(0, 31): # student id 
+            for contx in range(1, 4): # context
+                try:
+                    sample_rateTemp,samplesTemp = wav.read(getFileName(num,idx,contx))
+                    #Implementa fourier para pasar a un dominio tiempo frecuencia de cada ejemplo 
+                    f, t, Zxx = signal.stft(samplesTemp, fs=sample_rateTemp)
+                    # Frequency, means take the average of each sample                     
+                    frequency = frequency + max(f)
+                    count =count +1       
+                except :
+                   print("Error al abrir",getFileName(num,idx,contx))
+                   # if you get here it means an error happende, maybe you should warn the user
+                   # but doing pass will silently ignore it
+                   pass
+    
+    
+    print("Audios leidos")
+    print(count) 
+    frequencyAverageTemp=frequency/count #
+    print("Frecuencia Pico mas alto promedio")
+    print(frequencyAverageTemp)
+    return frequencyAverageTemp
+
 
 #--------------------------------------------------------------------------------------
 
@@ -105,16 +139,23 @@ def plotSTFT(pFilename,pNumberText):
     print(pNumberText)
     print("original")
     playsound(pFilename)
-    
     # Test audio normalize
-    wav.write("test.wav", sample_rate, samples /audioAverage)
+    wav.write("test.wav", sample_rate, (samples /audioAverage))
     print("normalizado")
     playsound("test.wav")
-    
+
+  
     # plot of frencuence vs time
     f, t, Zxx = signal.stft(samples, fs=sample_rate)
+
+    #Imprime las frecuencias normalizadas
+    print("Frecuencias normalizadas",f/frequencyAverage)
+    
     plt.pcolormesh(t, f, np.abs(Zxx), cmap='Reds')
     plt.show()
-
-audioAverage = normalizeSignalEnergy() # Energia promedio de los audios
+    
+print("Normalizando Energia")
+audioAverage = normalizeSignalEnergy() # Average Energy of the records
+print("Normalizando Frecuencia")
+frequencyAverage = normalizeFrequency()# Average Frequency of the records
 plotSTFT(getFileName(currentNumber,currentID,1),txtNumbers[currentNumber])
