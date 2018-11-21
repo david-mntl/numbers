@@ -1,3 +1,4 @@
 pip3 install playsound
 pip3 install sounddevice
+pip3 install python_speech_features
 sudo apt-get install python-pyaudio python3-pyaudio
