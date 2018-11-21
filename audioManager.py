@@ -37,34 +37,6 @@ def getFileName(pNumber, pUserID, pUserContext):
     path += ".wav"                          #Adds the file extension
     return path
 
-def nextNumber():
-    global currentNumber
-    if(currentNumber > 15):
-        currentNumber = 0
-    currentNumber+=1
-
-def prevNumber():
-    global currentNumber
-    if(currentNumber < 1):
-        currentNumber = 15
-    currentNumber-=1
-
-def nextUser(self, *args, **kwargs):
-    nextNumber()
-    plotSTFT(getFileName(currentNumber,currentID,1),txtNumbers[currentNumber])
-
-    home(self, *args, **kwargs)
-
-def prevUser(self, *args, **kwargs):
-    prevNumber()
-    plotSTFT(getFileName(currentNumber,currentID,1),txtNumbers[currentNumber])
-
-    home(self, *args, **kwargs)
-
-NavigationToolbar2.forward = nextUser
-NavigationToolbar2.back = prevUser
-
-
 
 '''
 * Returns average energy of all recorded
