@@ -14,8 +14,10 @@ import matplotlib as mpl
 import matplotlib.pyplot
 import numpy as np
 import matplotlib.backends.tkagg as tkagg
+import classifier
+import keras 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-
+from keras.models import load_model
 
 class RecAUD:
 
@@ -108,9 +110,14 @@ class RecAUD:
             return str(pNumber)
 
     def doPrediction(self):
-        intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
-        
-        txtPrediction = self.getNumberString(intPrediction)
+        #intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
+        audio = classifier.audiofile_to_input_vector("predict.wav",13,9)
+        inputAudio = audio.reshape(1,audio.shape[0],audio.shape[1])
+        inputAudio = keras.preprocessing.sequence.pad_sequences(inputAudio, maxlen=200)
+        model = load_model("model.h5")
+        intPrediction = model.predict_classes(inputAudio, verbose = 0)
+        print (intPrediction)
+        txtPrediction = self.getNumberString(intPrediction[0])
         self.labTxtPrediction.config(text=txtPrediction)
 
 
