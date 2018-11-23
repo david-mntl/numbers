@@ -124,14 +124,11 @@ class RecAUD:
                        # but doing pass will silently ignore it
                        pass
         num_frames=max(prep.listaNumframes)
-        #intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
-        audio = prep.preproceso(0,0,0,num_frames,1) # classif.audiofile_to_input_vector("predict.wav",13,9)
+        audio = prep.preproceso(0,0,0,num_frames,1) 
         audio = classifSVM.reshape_Audio(audio)
-        audio = audio.reshape(1,len(audio))
-        #inputAudio = audio.reshape(1,audio.shape[0],audio.shape[1])
-        #inputAudio = keras.preprocessing.sequence.pad_sequences(inputAudio, maxlen=200)
-        model = joblib.load('model.joblib') #load_model("model.joblib")
-        intPrediction = model.predict(audio)#model.predict_classes(inputAudio, verbose = 0)
+        audio = audio.reshape(1,len(audio))                
+        model = joblib.load('model.joblib') 
+        intPrediction = model.predict(audio)
         print (intPrediction)
         txtPrediction = self.getNumberString(intPrediction[0])
         self.labTxtPrediction.config(text=txtPrediction)
