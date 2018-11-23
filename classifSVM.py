@@ -8,11 +8,12 @@ from keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import LSTM
-import math,time,glob,os,sys,audioManager,keras
+import math,time,glob,os,sys,keras
 import numpy as np
 from numpy import concatenate, mean
 import preprocesamiento as prep
 from sklearn import svm
+import audioManager
 
 
 
