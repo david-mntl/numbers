@@ -12,6 +12,11 @@ from python_speech_features import mfcc
 from playsound import playsound
 from keras.utils import np_utils
 
+
+'''
+*   @brief: returns the set of data normalized
+*   returns Data Normalized
+'''
 def loadData():    
 
     y_target= []
@@ -46,11 +51,19 @@ def loadData():
     return [x_data, y_target]
 
 
-# reshape audio array to vector
+
+'''
+*   @brief: reshape audio array to vector
+*   returns audio sample arranged
+'''
 def reshape_Audio(audio):
     temp = np.reshape(audio,len(audio)*len(audio[0]))
     return np.array(temp)
 
+'''
+*   @brief: SVM classifier, trains the model and compute confusion matrix properly
+*   returns 
+'''
 def SVM():
     
     Data = loadData() # Load data normalized
