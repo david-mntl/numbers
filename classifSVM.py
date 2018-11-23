@@ -1,21 +1,16 @@
-from sklearn.metrics import confusion_matrix
 import scipy.io.wavfile as wav
 import scipy.signal as signal
+import matplotlib.pyplot as plt
+import math,time,glob,os,sys,keras
+import numpy as np
+import preprocesamiento as prep
+from sklearn import svm
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+from numpy import concatenate, mean
 from python_speech_features import mfcc
 from playsound import playsound
 from keras.utils import np_utils
-from keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import LSTM
-import math,time,glob,os,sys,keras
-import numpy as np
-from numpy import concatenate, mean
-import preprocesamiento as prep
-from sklearn import svm
-
-
-
 
 def loadData():    
 
@@ -58,10 +53,12 @@ def reshape_Audio(audio):
 
 def SVM():
     
-    Data = loadData()
+    Data = loadData() # Load data normalized
     x_data = np.array(Data[0])
     y_target = np.array(Data[1])  
 
+#############################################################################
+#               Re-arrange data to fit into the classifier                  #
 #############################################################################
     audio_reshape =  np.zeros((len(x_data), len(x_data[0])*len(x_data[0][0]))) 
 
@@ -75,22 +72,23 @@ def SVM():
     #Start time
     time_start=time.time()
 
-   #Define model architecture
+    #Split data into training set and test set
+    x_train, x_test, y_train, y_test = train_test_split(audio_reshape, y_target)
 
+    #Define model architecture
     clf=svm.SVC(kernel=str("linear"), C=5, gamma= 0.05 )
 
-    svc=clf.fit(audio_reshape,y_target) # train    
-    label_predict=svc.predict(audio_reshape) # predict
-
-
+    svc=clf.fit(x_train,y_train) # train    
+    label_predict=svc.predict(x_test) # predict
 ########################################################################### 
+    
     #Compute ConfussionMatrix 
-    print(confusion_matrix(y_target, label_predict))
+    confMatrix =confusion_matrix(y_test, label_predict)
+    print(confMatrix)
 
     # Total Time
     time_end=time.time() 
     print('Time to classify: %0.2f.' % ((time_end-time_start)/60))
-
 
     #To save the SVM Model
     from sklearn.externals import joblib
@@ -98,16 +96,34 @@ def SVM():
     
     #Evaluating the model
     # accuracy
-    accuracy=mean((label_predict==y_target)*1)
+    accuracy=mean((label_predict==y_test)*1)
     #score = model.evaluate(x_data, y_target, verbose=0)  
     print("Evaluate results:")
    # print('Test loss:', score[0])
     print('Test accuracy:', accuracy)
+    plotConfMatrix(confMatrix)
 
 
 
 
+#############################################################################
+#                         Plot Confusion Matrix                             #
+#############################################################################
+def plotConfMatrix(confMatrix):
+    fig, ax = plt.subplots()
+    ax.imshow(confMatrix)
 
-    
+    data = confMatrix[0]
+    labels = confMatrix[1]
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(labels)):
+        for j in range(len(data)):
+            ax.text(j, i, confMatrix[i, j],
+                        ha="center", va="center", color="w")
+
+    ax.set_title("Confusion Matrix")
+    fig.tight_layout()
+    plt.show()
+
 
 #SVM()

@@ -1,0 +1,3 @@
+import classifSVM
+
+classifSVM.SVM()
