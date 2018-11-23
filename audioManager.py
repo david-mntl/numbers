@@ -125,7 +125,8 @@ def plotSTFT(pFilename,pNumberText):
     
     plt.pcolormesh(t, f, np.abs(Zxx), cmap='Reds')
     plt.show()
-    
+
+
 print("Normalizando Energia")
 audioAverage = normalizeSignalEnergy() # Average Energy of the records
 print("Normalizando Frecuencia")
