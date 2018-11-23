@@ -97,7 +97,7 @@ def SVM():
 
    #Define model architecture
 
-    clf=svm.SVC(kernel=str("linear"), C=1 , gamma= 0.5 )
+    clf=svm.SVC(kernel=str("linear"), C=5, gamma= 0.05 )
     #print(X_train.shape)
     #print(y_train.shape)
     #print(X_test.shape)

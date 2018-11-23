@@ -10,7 +10,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import LSTM
 import math,time,glob,os,sys,audioManager,keras
 import numpy as np
-
+import preprocesamiento as prep
 
 
 
