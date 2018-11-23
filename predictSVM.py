@@ -9,12 +9,13 @@ import misc
 
 import scipy.io.wavfile as wav
 import scipy.signal as signal
+import preprocesamiento as prep
 
 import matplotlib as mpl
 import matplotlib.pyplot
 import numpy as np
 import matplotlib.backends.tkagg as tkagg
-import classif
+import classifSVM
 import keras 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from keras.models import load_model
@@ -113,9 +114,9 @@ class RecAUD:
 
     def doPrediction(self):
         #intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
-        audio = classif.audiofile_to_input_vector("predict.wav",13,9)
-        audio = classif.reshape_Audio(audio)
-        audio = audio.reshape(1,3000)
+        audio = prep.test(0,0,0,211,1) # classif.audiofile_to_input_vector("predict.wav",13,9)
+        audio = classifSVM.reshape_Audio(audio)
+        audio = audio.reshape(1,len(audio))
         #inputAudio = audio.reshape(1,audio.shape[0],audio.shape[1])
         #inputAudio = keras.preprocessing.sequence.pad_sequences(inputAudio, maxlen=200)
         model = joblib.load('model.joblib') #load_model("model.joblib")

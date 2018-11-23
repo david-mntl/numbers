@@ -11,7 +11,7 @@ from keras.layers import LSTM
 import math,time,glob,os,sys,audioManager,keras
 import numpy as np
 from numpy import concatenate, mean
-
+import preprocesamiento as prep
 from sklearn import svm
 
 
@@ -27,8 +27,20 @@ def loadData():
     for num in range(0, 16): # numero                      
         for idx in range(0, 31): # student id             
             for contx in range(1, 4): # context                
-                try:                                        
-                    features = audiofile_to_input_vector(audioManager.getFileName(num,idx,contx) , dafaultNumcep, numContext)                    
+                try:
+                    prep.obtenerMayorNumFrame(num, idx,contx)
+
+                except :
+                   print("Error al abrir",audioManager.getFileName(num,idx,contx))                   
+                   # if you get here it means an error happende, maybe you should warn the user
+                   # but doing pass will silently ignore it
+                   pass
+    num_frames=max(prep.listNF)
+    for num in range(0, 16): # numero                      
+        for idx in range(0, 31): # student id             
+            for contx in range(1, 4): # context                
+                try:
+                    features = prep.test(num, idx,contx, num_frames,0)                    
                     y_target.append(num)                      
                     x_data.append(features)
 
@@ -36,21 +48,23 @@ def loadData():
                    print("Error al abrir",audioManager.getFileName(num,idx,contx))                   
                    # if you get here it means an error happende, maybe you should warn the user
                    # but doing pass will silently ignore it
-                   pass          
+                   pass 
     
     return [x_data, y_target]
 
 
 # reshape audio array to vector
 def reshape_Audio(audio):
-    temp = np.reshape(audio,len(audio)*len(audio[0])   )
-    return np.array(temp[:3000])
+    temp = np.reshape(audio,len(audio)*len(audio[0]))
+    return np.array(temp)
 
 def SVM():
-    Data = loadData()        
+    
+    Data = loadData()
+    print(len(Data[0]))
     x_data = np.array(Data[0])
     y_target = np.array(Data[1])  
-    y_target = y_target[:3000]
+    #y_target = y_target[:3000]
 #############################################################################
    
     #y_target = np_utils.to_categorical(y_target,16)  
@@ -64,7 +78,7 @@ def SVM():
     print("len ",len(x_data[0]))
     print("len ",len(x_data[0][0]))
     
-    audio_reshape =  np.zeros((len(x_data), 3000 )) #len(x_data[0])*len(x_data[0][0])))
+    audio_reshape =  np.zeros((len(x_data), len(x_data[0])*len(x_data[0][0]))) #len(x_data[0])*len(x_data[0][0])))
 
     for i in range(0,len(x_data)):
         temp =x_data[i]
@@ -83,7 +97,7 @@ def SVM():
 
    #Define model architecture
 
-    clf=svm.SVC(kernel=str("rbf"), C=1 , gamma= 0.05 )
+    clf=svm.SVC(kernel=str("linear"), C=1 , gamma= 0.5 )
     #print(X_train.shape)
     #print(y_train.shape)
     #print(X_test.shape)
@@ -228,7 +242,6 @@ def audiofile_to_input_vector(audio_filename, numcep, numcontext):
     # This can be done more efficiently in the TensorFlow graph
     train_inputs = (train_inputs - np.mean(train_inputs)) / np.std(train_inputs)
     return train_inputs
-
 
 
 

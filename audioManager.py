@@ -128,7 +128,7 @@ def plotSTFT(pFilename,pNumberText):
 
 
 print("Normalizando Energia")
-audioAverage = normalizeSignalEnergy() # Average Energy of the records
+#audioAverage = normalizeSignalEnergy() # Average Energy of the records
 print("Normalizando Frecuencia")
-frequencyAverage = normalizeFrequency()# Average Frequency of the records
-plotSTFT(getFileName(currentNumber,currentID,1),txtNumbers[currentNumber])
+#frequencyAverage = normalizeFrequency()# Average Frequency of the records
+#plotSTFT(getFileName(currentNumber,currentID,1),txtNumbers[currentNumber])

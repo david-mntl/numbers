@@ -206,4 +206,4 @@ def audiofile_to_input_vector(audio_filename, numcep, numcontext):
 
 
 
-SVM()
+#SVM()
