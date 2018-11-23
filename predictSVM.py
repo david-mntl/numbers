@@ -123,7 +123,7 @@ class RecAUD:
                        # if you get here it means an error happende, maybe you should warn the user
                        # but doing pass will silently ignore it
                        pass
-        num_frames=max(prep.listNF)
+        num_frames=max(prep.listaNumframes)
         #intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
         audio = prep.preproceso(0,0,0,num_frames,1) # classif.audiofile_to_input_vector("predict.wav",13,9)
         audio = classifSVM.reshape_Audio(audio)

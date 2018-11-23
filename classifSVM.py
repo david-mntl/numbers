@@ -35,7 +35,7 @@ def loadData():
                    # if you get here it means an error happende, maybe you should warn the user
                    # but doing pass will silently ignore it
                    pass
-    num_frames=max(prep.listNF)
+    num_frames=max(prep.listaNumframes)
     for num in range(0, 16): # numero                      
         for idx in range(0, 31): # student id             
             for contx in range(1, 4): # context                
