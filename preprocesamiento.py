@@ -4,12 +4,10 @@ from scipy.fftpack import dct
 import math
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmap
-
 from matplotlib.backend_bases import NavigationToolbar2
 
 
 home = NavigationToolbar2.home
-
 txtNumbers = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince']
 global currentNumber
 global currentID
@@ -35,14 +33,19 @@ def getFileName(pNumber, pUserID, pUserContext):
     return path
 
 
-listNF=[]
-listMFCC=[]
+listaNumframes=[]
 
-def test(num, idx,contx, num_frames, prueba):
-    if(prueba):
-        sample_rate, signal = scipy.io.wavfile.read("predict.wav")
+'''
+    .
+    This function has been modified from:
+    https://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html
+'''
+
+def preproceso(num, idx,contx, num_frames, tipoAlgoritmo):
+    if(tipoAlgoritmo):
+        frecuencia, signal = scipy.io.wavfile.read("predict.wav")
     else:
-        sample_rate, signal = scipy.io.wavfile.read(getFileName(num,idx,contx))  # File assumed to be in the same directory
+        frecuencia, signal = scipy.io.wavfile.read(getFileName(num,idx,contx))
 
 
     pre_emphasis = 0.97
@@ -51,13 +54,10 @@ def test(num, idx,contx, num_frames, prueba):
     frame_size = 0.025
     frame_stride = 0.01
 
-    frame_length, frame_step = frame_size * sample_rate, frame_stride * sample_rate  # Convert from seconds to samples
+    frame_length, frame_step = frame_size * frecuencia, frame_stride * frecuencia  # Convert from seconds to samples
     signal_length = len(emphasized_signal)
     frame_length = int(round(frame_length))
     frame_step = int(round(frame_step))
-    #num_frames = int(numpy.ceil(float(numpy.abs(signal_length - frame_length)) / frame_step))  # Make sure that we have at least 1 frame
-    #print(num_frames)
-
     
     pad_signal_length = num_frames * frame_step + frame_length
     z = numpy.zeros(abs((pad_signal_length - signal_length)))
@@ -82,10 +82,10 @@ def test(num, idx,contx, num_frames, prueba):
     nfilt = 40
 
     low_freq_mel = 0
-    high_freq_mel = (2595 * numpy.log10(1 + (sample_rate / 2) / 700))  # Convert Hz to Mel
+    high_freq_mel = (2595 * numpy.log10(1 + (frecuencia / 2) / 700))  # Convert Hz to Mel
     mel_points = numpy.linspace(low_freq_mel, high_freq_mel, nfilt + 2)  # Equally spaced in Mel scale
     hz_points = (700 * (10**(mel_points / 2595) - 1))  # Convert Mel to Hz
-    bin = numpy.floor((NFFT + 1) * hz_points / sample_rate)
+    bin = numpy.floor((NFFT + 1) * hz_points / frecuencia)
 
     fbank = numpy.zeros((nfilt, int(numpy.floor(NFFT / 2 + 1))))
     for m in range(1, nfilt + 1):
@@ -117,10 +117,14 @@ def test(num, idx,contx, num_frames, prueba):
     mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
     return mfcc
 
-
+'''
+    Count the file's frames and append them to a list. With this list we can get the longest "file".
+    This function has been modified from:
+    https://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html
+'''
 def obtenerMayorNumFrame(num, idx,contx):
-    sample_rate, signal = scipy.io.wavfile.read(getFileName(num,idx,contx))  # File assumed to be in the same directory
 
+    frecuencia, signal = scipy.io.wavfile.read(getFileName(num,idx,contx))
 
     pre_emphasis = 0.97
     emphasized_signal = numpy.append(signal[0], signal[1:] - pre_emphasis * signal[:-1])
@@ -128,38 +132,12 @@ def obtenerMayorNumFrame(num, idx,contx):
     frame_size = 0.025
     frame_stride = 0.01
 
-    frame_length, frame_step = frame_size * sample_rate, frame_stride * sample_rate  # Convert from seconds to samples
+    frame_length, frame_step = frame_size * frecuencia, frame_stride * frecuencia  # Convert from seconds to samples
     signal_length = len(emphasized_signal)
     frame_length = int(round(frame_length))
     frame_step = int(round(frame_step))
     num_frames = int(numpy.ceil(float(numpy.abs(signal_length - frame_length)) / frame_step))  # Make sure that we have at least 1 frame
-    listNF.extend([num_frames])
-
-def pre():
-    for num in range(0, 16): # numero 
-        for idx in range(0, 31): # student id 
-            for contx in range(1, 4): # context
-                try:
-                    obtenerMayorNumFrame(num, idx,contx)
-
-                except :
-                   #print("Error al abrir",getFileName(num,idx,contx))
-                   # if you get here it means an error happende, maybe you should warn the user
-                   # but doing pass will silently ignore it
-                   pass
-
-    num_frames=max(listNF)
-    for num in range(0, 16): # numero 
-        for idx in range(0, 31): # student id 
-            for contx in range(1, 4): # context
-                try:
-                    test(num, idx,contx, num_frames)
-
-                except :
-                   #print("Error al abrir",getFileName(num,idx,contx))
-                   # if you get here it means an error happende, maybe you should warn the user
-                   # but doing pass will silently ignore it
-                   pass
+    listaNumframes.extend([num_frames])
                     
     
 

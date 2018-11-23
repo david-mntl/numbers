@@ -13,7 +13,6 @@ import numpy as np
 from numpy import concatenate, mean
 import preprocesamiento as prep
 from sklearn import svm
-import audioManager
 
 
 
@@ -32,7 +31,7 @@ def loadData():
                     prep.obtenerMayorNumFrame(num, idx,contx)
 
                 except :
-                   print("Error al abrir",audioManager.getFileName(num,idx,contx))                   
+                   print("Error al abrir",prep.getFileName(num,idx,contx))                   
                    # if you get here it means an error happende, maybe you should warn the user
                    # but doing pass will silently ignore it
                    pass
@@ -41,12 +40,12 @@ def loadData():
         for idx in range(0, 31): # student id             
             for contx in range(1, 4): # context                
                 try:
-                    features = prep.test(num, idx,contx, num_frames,0)                    
+                    features = prep.preproceso(num, idx,contx, num_frames,0)                    
                     y_target.append(num)                      
                     x_data.append(features)
 
                 except :
-                   print("Error al abrir",audioManager.getFileName(num,idx,contx))                   
+                   print("Error al abrir",prep.getFileName(num,idx,contx))                   
                    # if you get here it means an error happende, maybe you should warn the user
                    # but doing pass will silently ignore it
                    pass 

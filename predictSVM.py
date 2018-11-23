@@ -113,8 +113,19 @@ class RecAUD:
             return str(pNumber)
 
     def doPrediction(self):
+        for num in range(0, 16): # numero
+            for idx in range(0, 31): # student id
+                for contx in range(1, 4): # context
+                    try:
+                        prep.obtenerMayorNumFrame(num, idx,contx)
+                    except :
+                       print("Error al abrir",prep.getFileName(num,idx,contx))                   
+                       # if you get here it means an error happende, maybe you should warn the user
+                       # but doing pass will silently ignore it
+                       pass
+        num_frames=max(prep.listNF)
         #intPrediction = 15 #TODO GET THE PREDICTION FROM DAVID'S METHOD
-        audio = prep.test(0,0,0,211,1) # classif.audiofile_to_input_vector("predict.wav",13,9)
+        audio = prep.preproceso(0,0,0,num_frames,1) # classif.audiofile_to_input_vector("predict.wav",13,9)
         audio = classifSVM.reshape_Audio(audio)
         audio = audio.reshape(1,len(audio))
         #inputAudio = audio.reshape(1,audio.shape[0],audio.shape[1])
