@@ -2,6 +2,7 @@
 import tkinter
 import tkinter as tk
 import tkinter.messagebox
+from tkinter import filedialog
 import pyaudio
 import wave
 import os
@@ -21,6 +22,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from keras.models import load_model
 
 from sklearn.externals import joblib
+from pydub import AudioSegment
+from playsound import playsound
 
 class RecAUD:
 
@@ -29,7 +32,7 @@ class RecAUD:
         # Start Tkinter and set Title
         self.main = tkinter.Tk()
         self.collections = []
-        self.main.geometry("920x600+500+150")
+        self.main.geometry("920x625+500+150")
         self.main.title("Numbers prediction")
         self.CHUNK = chunk
         self.FORMAT = frmat
@@ -52,15 +55,31 @@ class RecAUD:
         self.butRecord = tkinter.Button(self.main,width=11,height=1,command=lambda: self.toggleRecord(),text="Start recording",bg=misc.green,fg=misc.black)
         self.butRecord.place(x=10,y=35)
 
-        self.butPredict = tkinter.Button(self.main,width=7,height=1,command=lambda: self.doGraphics(),text="Graph audio",bg=misc.hardBlue,fg=misc.black)
-        self.butPredict.place(x=145,y=35)
+        self.butGraph = tkinter.Button(self.main,width=7,height=1,command=lambda: self.doGraphics(),text="Graph audio",bg=misc.hardBlue,fg=misc.black)
+        self.butGraph.place(x=145,y=35)
 
         self.butPredict = tkinter.Button(self.main,width=7,height=1,command=lambda: self.doPrediction(),text="Predict",bg=misc.hardBlue,fg=misc.black)
         self.butPredict.place(x=243,y=35)
+        
+        self.butClear = tkinter.Button(self.main,width=7,height=1,command=lambda: self.cleanCanvas(),text="Clear",bg=misc.hardBlue,fg=misc.black)
+        self.butClear.place(x=340,y=35)
+
+        self.audioPathEntry = tkinter.Entry(self.main,bg="#FFFFFF", width=55)
+        self.audioPathEntry.bind("<Key>", lambda e: "break")
+        self.audioPathEntry.place(x=10,y=75)
+
+        img_search = misc.load_img("dir_search.png")
+        b_dir=tkinter.Button(self.main,justify = tkinter.LEFT,image=img_search,command=lambda: self.askAudioFilePath())
+        b_dir.photo = img_search
+        b_dir.place(x=520,y=70)
+        
+        self.butClear = tkinter.Button(self.main,width=7,height=1,command=lambda: self.loadNewAudio(),text="Load",bg=misc.hardBlue,fg=misc.black)
+        self.butClear.place(x=560,y=70)
+        
 
         #-----
         self.predGroup = tkinter.LabelFrame(self.main, text="Prediction", width=200,height=200)
-        self.predGroup.place(x=700,y=75)
+        self.predGroup.place(x=700,y=110)
 
         self.labTxtPrediction = tkinter.Label(self.predGroup,text="The audio contains a:",font="Arial 14")
         self.labTxtPrediction.place(x=5,y=5)
@@ -69,15 +88,43 @@ class RecAUD:
         self.labTxtPrediction.place(x=45,y=45)
 
         #-----
-        self.graphGroup = tkinter.LabelFrame(self.main, text="Audio graphics", width=650,height=510)
-        self.graphGroup.place(x=5,y=75)
+        self.predGroup = tkinter.LabelFrame(self.main, text="Audio adjust", width=200,height=200)
+        self.predGroup.place(x=700,y=325)
 
-        self.canvas = tkinter.Canvas(self.graphGroup, width=640, height=480)
-        self.canvas.place(x=1,y=1)
+        self.butCrop = tkinter.Button(self.predGroup,width=7,height=1,command=lambda: self.cropAudio(),text="Crop",bg=misc.hardBlue,fg=misc.black)
+        self.butCrop.place(x=5,y=5)
+
+        self.butCrop = tkinter.Button(self.predGroup,width=7,height=1,command=lambda: self.playAudio(),text="Play",bg=misc.hardBlue,fg=misc.black)
+        self.butCrop.place(x=100,y=5)
+
+        self.initLabel = tkinter.Label(self.predGroup,text="Init time:")
+        self.initLabel.place(x=5,y=45)
+
+        self.initEntry = tkinter.Entry(self.predGroup,bg="#FFFFFF")
+        self.initEntry.place(x=5,y=65)
+
+        self.endLabel = tkinter.Label(self.predGroup,text="End time:")
+        self.endLabel.place(x=5,y=95)
+
+        self.endEntry = tkinter.Entry(self.predGroup,bg="#FFFFFF")
+        self.endEntry.place(x=5,y=115)
+
+        #-----
+        self.graphGroup = tkinter.LabelFrame(self.main, text="Audio graphics", width=650,height=510)
+        self.graphGroup.place(x=5,y=110)
 
         #self.canvas = tkinter.Canvas(window, width=300, height=300)
 
         tkinter.mainloop()
+
+    def loadNewAudio(self):
+        newAudio = AudioSegment.from_wav(str(self.audioPathEntry.get()))
+        newAudio.export('predict.wav', format="wav") #Exports to a wav file in the current path.
+
+    def askAudioFilePath(self):
+        pPath = filedialog.askopenfilename(title = "Select file",filetypes = (("wav files","*.wav"),))
+        self.audioPathEntry.delete('0', 'end')
+        self.audioPathEntry.insert(0,pPath)
 
     def toggleRecord(self):
         if( self.st == 0):
@@ -119,10 +166,8 @@ class RecAUD:
                     try:
                         prep.obtenerMayorNumFrame(num, idx,contx)
                     except :
-                       print("Error al abrir",prep.getFileName(num,idx,contx))                   
-                       # if you get here it means an error happende, maybe you should warn the user
-                       # but doing pass will silently ignore it
-                       pass
+                       pass #Cant find the file
+
         num_frames=max(prep.listaNumframes)
         audio = prep.preproceso(0,0,0,num_frames,1) 
         audio = classifSVM.reshape_Audio(audio)
@@ -133,20 +178,38 @@ class RecAUD:
         txtPrediction = self.getNumberString(intPrediction[0])
         self.labTxtPrediction.config(text=txtPrediction)
 
+    def playAudio(self):
+        playsound("predict.wav")
+
+    def cropAudio(self):
+        t1 = int(self.initEntry.get())/10
+        t2 = int(self.endEntry.get())/10
+        newAudio = AudioSegment.from_wav("predict.wav")
+        newAudio = newAudio[t1:t2]
+        newAudio.export('predict.wav', format="wav") #Exports to a wav file in the current path.
+
+    def cleanCanvas(self):
+        self.canvas.delete("gp")
 
     def doGraphics(self):
-        self.canvas.delete("all")
+        
         sample_rate, samples = wav.read("predict.wav")
         
         f, t, Zxx = signal.stft(samples, fs=sample_rate)
-        matplotlib.pyplot.pcolormesh(t, f, np.abs(Zxx), cmap='Reds')
+        #matplotlib.pyplot.pcolormesh(t, f, np.abs(Zxx), cmap='Reds')
+        matplotlib.pyplot.clf()
+        matplotlib.pyplot.plot(samples)
         matplotlib.pyplot.savefig("imgs/audio.png")
 
         pAudioImage = misc.load_img("audio.png")
 
-        
-        self.canvas.create_image(0, 0, image=pAudioImage, anchor='nw')
-        self.canvas.image = pAudioImage
+
+        self.canvas = tkinter.Canvas(self.graphGroup, width=640, height=480)
+        self.canvas.place(x=1,y=1)
+
+        self.image = pAudioImage
+        self.cleanCanvas()
+        self.canvas.create_image(0, 0, image=self.image, anchor='nw',tags=('gp'))
 
 # Create an object of the ProgramGUI class to begin the program.
 guiAUD = RecAUD()

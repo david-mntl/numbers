@@ -3,5 +3,6 @@ pip3 install sounddevice
 pip3 install python_speech_features
 pip3 install tensorflow
 pip3 install keras
+pip3 install pydub
 sudo apt-get install python-pyaudio python3-pyaudio
 sudo apt install python3-sklearn
